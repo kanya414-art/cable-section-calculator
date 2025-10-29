@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>必要ケーブル断面積計算ツール</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>必要ケーブル断面積計算ツール</h1>
+
+  <div class="container">
+    <label>ケーブル種類:
+      <select id="cableType"></select>
+    </label>
+
+    <label>電圧 (V):
+      <input id="voltage" type="number" placeholder="例: 100">
+    </label>
+
+    <label>電流 (A):
+      <input id="current" type="number" placeholder="例: 15">
+    </label>
+
+    <label>距離 (m):
+      <input id="distance" type="number" placeholder="例: 20">
+    </label>
+
+    <label>許容電圧降下率 (%):
+      <input id="dropRate" type="number" placeholder="例: 2">
+    </label>
+
+    <button id="calcBtn">断面積を計算する</button>
+
+    <div id="result"></div>
+  </div>
+
+  <hr>
+  <h2>このツールについて</h2>
+  <p>入力した電圧・電流・距離・許容電圧降下率から、必要なケーブル断面積を自動で計算します。</p>
+
+  <script src="script.js"></script>
+</body>
+</html>
