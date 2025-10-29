@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>電線計算ツール（高精度版）</title>
+  <link rel="stylesheet" href="style.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9458897141107764"
+     crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <h1>電線計算ツール（高精度版）</h1>
+
+  <div class="container">
+    <label>ケーブル種類:
+      <select id="cableType"></select>
+    </label>
+
+    <label>断面積 (mm²): 
+      <input id="crossSection" type="number" placeholder="例: 2.0">
+    </label>
+
+    <label>電圧 (V): <input id="voltage" type="number" placeholder="例: 100"></label>
+    <label>電流 (A): <input id="current" type="number" placeholder="例: 15"></label>
+    <label>距離 (m): <input id="distance" type="number" placeholder="例: 20"></label>
+    <button id="calcBtn">計算する</button>
+
+    <div id="result"></div>
+  </div>
+
+  <hr>
+
+  <h2>このツールについて</h2>
+  <p>このツールはJIS規格の抵抗率を用いて、各ケーブルの電圧降下・末端電圧・許容電流の目安を自動計算します。</p>
+
+  <script src="script_v3.js"></script>
+</body>
+</html>
