@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>必要ケーブル断面積計算ツール</title>
+  <link rel="stylesheet" href="style.css">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9458897141107764"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+  <h1>必要ケーブル断面積計算ツール</h1>
+
+  <div class="container">
+    <label>ケーブル種類:
+      <select id="cableType"></select>
+    </label>
+
+    <label>電圧 (V):
+      <input id="voltage" type="number" placeholder="例: 100">
+    </label>
+
+    <label>電流 (A):
+      <input id="current" type="number" placeholder="例: 15">
+    </label>
+
+    <label>距離 (m):
+      <input id="distance" type="number" placeholder="例: 20">
+    </label>
+
+    <label>許容電圧降下率 (%):
+      <input id="dropRate" type="number" placeholder="例: 2">
+    </label>
+
+    <button id="calcBtn">断面積を計算する</button>
+
+    <div id="result"></div>
+  </div>
+
+  <hr>
+  <h2>このツールについて</h2>
+  <p>
+    入力した電圧・電流・距離・許容電圧降下率から、必要なケーブル断面積を自動で計算するツールです。<br>
+    材質の抵抗率に基づき、最も適したケーブルサイズを提案します。
+  </p>
+
+  <hr>
+  <h2>プライバシーポリシー</h2>
+  <p>
+    当サイトでは、第三者配信の広告サービス（Google AdSense）を利用しています。<br>
+    これらの広告配信事業者は、ユーザーの興味に応じた広告を表示するため、Cookieを使用することがあります。<br>
+    Cookieを無効にする方法や詳細については、
+    <a href="https://policies.google.com/technologies/ads?hl=ja" target="_blank">Googleポリシーと規約</a>
+    をご覧ください。
+  </p>
+  <p>
+    当サイトでは、入力されたデータ（電圧・電流・距離など）はブラウザ内でのみ処理され、
+    サーバーに送信・保存されることはありません。安心してご利用ください。
+  </p>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const els = {
+        cableType: document.getElementById("cableType"),
+        voltage: document.getElementById("voltage"),
+        current: document.getElementById("current"),
+        distance: document.getElementById("distance"),
+        dropRate: document.getElementById("dropRate"),
+        result: document.getElementById("result"),
+        calcBtn: document.getElementById("calcBtn")
+      };
+
+      fetch("./cable_data.json")
+        .then(res => res.json())
+        .then(data => {
+          // ケーブル一覧をプルダウンへ追加
+          Object.keys(data).forEach(name => {
+            const opt = document.createElement("option");
+            opt.value = name;
+            opt.textContent = `${name}（${data[name].material}）`;
+            els.cableType.appendChild(opt);
+          });
+
+          // 計算ボタン押下時
+          els.calcBtn.addEventListener("click", () => {
+            const type = els.cableType.value;
+            const V = parseFloat(els.voltage.value);
+            const I = parseFloat(els.current.value);
+            const L = parseFloat(els.distance.value);
+            const dropRate = parseFloat(els.dropRate.value);
+
+            if (!type || isNaN(V) || isNaN(I) || isNaN(L) || isNaN(dropRate)) {
+              els.result.innerHTML = "<p style='color:red;'>⚠️ 入力値をすべて入力してください。</p>";
+              return;
+            }
+
+            const cable = data[type];
+            const rho = cable.resistivity;
+            const sections = cable.sections || [1.25, 2, 3.5, 5.5, 8, 14, 22];
+            const maxDrop = (V * dropRate) / 100;
+            const tempCoeff = 1 + 0.00393 * (25 - 20);
+
+            let selected = null;
+            for (let s of sections) {
+              const R = (rho * 2 * L / s) * tempCoeff;
+              const Vdrop = I * R;
+              if (Vdrop <= maxDrop) {
+                selected = { s, Vdrop };
+                break;
+              }
+            }
+
+            if (selected) {
+              els.result.innerHTML = `
+                <h3>${type} の計算結果</h3>
+                <p>材質: ${cable.material}</p>
+                <p>必要断面積: <strong>${selected.s} mm² 以上</strong></p>
+                <p>予想電圧降下: ${selected.Vdrop.toFixed(2)} V（許容 ${maxDrop.toFixed(2)} V以内）</p>
+              `;
+            } else {
+              els.result.innerHTML = `
+                <p style='color:red;'>⚠️ この条件を満たす断面積が見つかりません。より太いケーブルを検討してください。</p>
+              `;
+            }
+          });
+        })
+        .catch(err => {
+          console.error("❌ JSON読込エラー:", err);
+          els.result.innerHTML = "<p style='color:red;'>ケーブルデータを読み込めませんでした。</p>";
+        });
+    });
+  </script>
+</body>
+</html>
